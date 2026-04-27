@@ -218,3 +218,5 @@ select @@sql_mode;
 -- @@ are used to access variables in db, @@ for system vars, @ for user vars
 set @var1 = 2;
 select @var1;
+-- lifetime of user vars is session -> resets on connection restart
+-- cant drop/destroy explicitly, just set to NULL
