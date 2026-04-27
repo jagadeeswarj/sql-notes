@@ -211,3 +211,79 @@ select c.color,s.size from colors c cross join sizes s;
 -- cause by default eveything is a cross joing, the ON conditions do the filtering
 SELECT c.color, s.size
 FROM colors c, sizes s;
+
+
+-- JOIN with aggregation
+-- total premium per customer
+select c.id, c.name, COALESCE(sum(p.premium),0) as total_premium
+from customers c 
+left join policies p on c.id = p.customer_id 
+group by c.id, c.name
+order by total_premium desc;
+
+-- customer with mroe than 3 policies
+select c.id, c.name, count(p.id) as total_policies
+from customers c
+join policies p on c.id = p.customer_id 
+group by c.id,c.name
+having count(p.id) >= 1
+order by total_policies desc;
+
+
+-- avg claim per policy type
+select 
+p.type, avg(cl.amount) as avg_claim
+from claims cl left join policies p on cl.policy_id = p.id
+group by p.type
+order by avg_claim desc;
+
+-- note
+-- WHERE kills LEFT JOIN -> cause the null check will always fail in logical operators so left join becomes inner join as the null valued rows are removed
+
+
+SELECT c.name,
+       COUNT(*) AS rows_count,
+       COUNT(p.id) AS policy_count
+FROM customers c
+LEFT JOIN policies p ON c.id = p.customer_id
+GROUP BY c.name;
+
+-- here count(*) gives total rows, but count(col) give non null rows only
+
+-- Practice Set
+
+-- Names of all customers and their policy types.
+
+select c.name,coalesce(p.type,'no-policy') from customers c left join policies p on c.id = p.customer_id;
+
+-- Customers from 'Mumbai' with at least one policy.
+
+select c.id, c.name, count(p.id) as total_polices from customers c left join policies p
+on c.id = p.customer_id where c.city = 'Mumbai' group by c.id,c.name having count(p.id) >= 1 order by total_polices desc;
+
+-- Customers who have NO policy.
+select c.id,c.name from customers c left join policies p on c.id = p.customer_id where p.id is null;
+-- Total premium each customer pays.
+select c.id,c.name, sum(p.premium) as total_premium from customers c join policies p on c.id = p.customer_id group by c.id, c.name;
+-- Customers with more than 2 policies.
+select c.id,c.name, count(p.id) as total_policies from customers c join policies p on c.id = p.customer_id group by c.id,c.name having count(p.id) >= 3;
+-- Total claim amount per policy.
+select p.id, sum(cl.amount) as total_claim
+from claims cl left join policies p on cl.policy_id = p.id group by p.id;
+-- Find policies that have NO claims.
+select p.id
+from claims cl right join policies p on cl.policy_id = p.id where cl.id is null;
+-- Names of customers and their agent's name.
+select c.name ,a.name from 
+customers c 
+join customer_agents ca on c.id = ca.customer_id
+join agents a on ca.agent_id = a.id;
+-- Top 5 customers by total premium.
+select c.name, coalesce(sum(p.premium),0) as total_premium from 
+customers c
+left join policies p on c.id = p.customer_id
+group by c.id,c.name
+order by total_premium desc
+limit 5;
+-- Number of claims per customer (including those with 0 claims)
+
