@@ -150,7 +150,9 @@ where m.id is null;
 -- Aliases are NOT available to other expressions in the same SELECT list
 
 -- emp earn more than manager
-select e.name ,e.salary as emp_sal,m.salary as manager_sal, (e.salary - m.salary) as sal_diff from employees e join employees m 
+select e.name ,e.salary as emp_sal,m.name as manager_name, m.salary as manager_sal, 
+(e.salary - m.salary) as sal_diff ,concat(e.name,' earns ', (e.salary - m.salary), ' more than their manager ',m.name) as res 
+from employees e join employees m 
 on e.manager_id = m.id where e.salary > m.salary order by sal_diff desc;
 
 
@@ -233,7 +235,7 @@ order by total_policies desc;
 -- avg claim per policy type
 select 
 p.type, avg(cl.amount) as avg_claim
-from claims cl left join policies p on cl.policy_id = p.id
+from claims cl right join policies p on cl.policy_id = p.id
 group by p.type
 order by avg_claim desc;
 
@@ -268,8 +270,8 @@ select c.id,c.name, sum(p.premium) as total_premium from customers c join polici
 -- Customers with more than 2 policies.
 select c.id,c.name, count(p.id) as total_policies from customers c join policies p on c.id = p.customer_id group by c.id,c.name having count(p.id) >= 3;
 -- Total claim amount per policy.
-select p.id, sum(cl.amount) as total_claim
-from claims cl left join policies p on cl.policy_id = p.id group by p.id;
+select p.id,COALESCE(SUM(cl.amount),0) AS total_claim
+from claims cl right join policies p on cl.policy_id = p.id group by p.id;
 -- Find policies that have NO claims.
 select p.id
 from claims cl right join policies p on cl.policy_id = p.id where cl.id is null;
@@ -283,7 +285,10 @@ select c.name, coalesce(sum(p.premium),0) as total_premium from
 customers c
 left join policies p on c.id = p.customer_id
 group by c.id,c.name
-order by total_premium desc
-limit 5;
+order by total_premium desc;
+
 -- Number of claims per customer (including those with 0 claims)
+select c.id, c.name, count(cl.id)
+from customers c left join policies p on c.id = p.customer_id 
+left join claims cl on p.id = cl.policy_id group by c.id, c.name;
 
