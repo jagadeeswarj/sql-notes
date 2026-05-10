@@ -182,6 +182,7 @@ select datediff(curdate(),hire_date) from employees;
 -- to get month or year diff, use timestampdiff
 
 select timestampdiff(month,hire_date,CURDATE()) from employees;
+
 select timestampdiff(year,hire_date, CURDATE()) from employees;
 
 

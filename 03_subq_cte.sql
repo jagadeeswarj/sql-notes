@@ -1,4 +1,4 @@
--- A subquery is just a SELECT statement nested inside another SQL statement. It runs first 
+	-- A subquery is just a SELECT statement nested inside another SQL statement. It runs first 
 -- type of outputs from the sub query
 	-- 
 
@@ -23,7 +23,7 @@ select name, salary ,(select avg(salary) from employees) as cavg from employees;
   
   
   
-  -- scalar sub Q - is a subquery that returns exactly one value — 1 row, 1 column.
+  -- scalar sub Q - is a subquery that returns exactly one value — 1 row x 1 column.
     SELECT name, salary - (SELECT AVG(salary) FROM employees) AS diff_from_avg
   FROM employees order by diff_from_avg desc;
   
@@ -119,10 +119,14 @@ select * from employees e where e.salary = (select max(salary) from employees e 
  
  insert into b values (1),(2),(null);
  
+ select * from a;
+ select * from b;
+ 
  select * from a inner join b on a.id = b.id;
  
-  select count(*) from a left join b on a.id = b.id;
- 
+  select * from a left join b on a.id = b.id
+  UNION ALL
     select * from a right join b on a.id = b.id;
+  
+  select * from a cross join b;
  
-    select * from a full outer join b on a.id = b.id;
